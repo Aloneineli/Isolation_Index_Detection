@@ -16,6 +16,7 @@ from algorithms_1.loda import find_most_anomalous_rows_loda
 from algorithms_1.lof import find_most_anomalous_rows_lof
 from algorithms_1.sod import find_most_anomalous_rows_sod
 import Extremes
+import Extremes_new
 
 
 def run_experiment(data, epochs, num_main_values):
@@ -55,7 +56,7 @@ def run_experiment(data, epochs, num_main_values):
                 "LODA": find_most_anomalous_rows_loda,
                 "iForest": find_most_anomalous_rows_iforest,
                 "ABOD": find_most_anomalous_rows_abod,
-                "Isolation Index": Extremes.extreme,
+                "Isolation Index": Extremes_new.extreme,
                 "SOD": find_most_anomalous_rows_sod,
             }
 
@@ -64,6 +65,7 @@ def run_experiment(data, epochs, num_main_values):
                     if method == "Isolation Index":
                         _, rows = func(X)  # Handle "Isolation Index" method to get anomalies
                         row = rows[0]
+                        row = row[np.newaxis, :]
                     else:
                         row, _ = func(X, k=k, n_anomalous=1)
                         if isinstance(row, list) and len(row) > 0:
@@ -77,8 +79,10 @@ def run_experiment(data, epochs, num_main_values):
                     elif data == 'pen_writing':
                         if row.size != 16:
                             continue
-
-                    row_index = np.where((X == row).all(axis=1))[0][0]
+                    if method == 'Isolation Index':
+                        row_index = np.where((X == row))[0][0]
+                    else:
+                        row_index = np.where((X == row).all(axis=1))[0][0]
                     is_anomaly = y[row_index] == ano_cl
                     results[method][k].append(is_anomaly)
             end = time.time()
@@ -115,12 +119,12 @@ def plot_results(df, title, x_ticks):
     # plt.grid(True)
 
     # Save the plot as an image
-    plt.savefig(f"{title.replace(' ', '_')}.png")
+    # plt.savefig(f"{title.replace(' ', '_')}.png")
     plt.show()
 
 
 if __name__ == "__main__":
-    epochs = 100
+    epochs = 5
 
     num_main_values_dict = {
         'breast_cancer': [1000],
@@ -133,7 +137,7 @@ if __name__ == "__main__":
         'mnist': range(0, 101, 10)
     }
 
-    for data in ['MNIST', 'Pen Writing', 'Breast Cancer']:
+    for data in ['Breast Cancer', 'MNIST', 'Pen Writing']:
         if data == 'MNIST':
             data_temp = 'mnist'
         elif data == 'Pen Writing':

@@ -2,7 +2,7 @@ from pyod.models.cof import COF
 import Data.Process_data
 import numpy as np
 from sklearn.metrics import roc_auc_score
-
+import Extremes_new
 import Extremes_Recursion
 from Data.Process_data import generate_vector_min
 import Extremes
@@ -11,7 +11,7 @@ import time
 
 def get_AUC_IsolationIndex(X, y, times=False):
 	st = time.time()
-	scores = Extremes.extreme(X)
+	scores = Extremes_new.extreme(X)
 	en = time.time()
 	if times:
 		return en - st
